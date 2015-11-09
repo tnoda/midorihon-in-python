@@ -1,0 +1,12 @@
+* midorihon-in-python
+
+#+BEGIN_QUOTE
+久保拓弥, データ解析のための統計モデリング入門, 岩波書店, 2012.
+#+END_QUOTE
+
+の R サンプルコードを Python で書いていきます。
+
+** License
+
+http://tnoda.mit-license.org/2015
+
