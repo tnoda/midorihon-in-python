@@ -6,6 +6,11 @@
 
 の R サンプルコードを Python で書いていきます。
 
+** ob-ipython
+
+ソースコードは Emacs の Org mode ファイルで、 [[https://github.com/gregsexton/ob-ipython][ob-ipython]] を使って記述・実行しています。
+
+
 ** License
 
 http://tnoda.mit-license.org/2015
