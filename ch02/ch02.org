@@ -21,7 +21,7 @@ Pandas 使います。
 
 ** .RData データの読み込み
 
-例題データの内容を ~data~ に読み込みます。 .RData を Python で扱うには [[http://rpy.sourceforge.net/][rpy2]] が便利です。
+例題データの内容を Python で読み込みます。 .RData を Python で扱うには [[http://rpy.sourceforge.net/][rpy2]] が便利です。
 
 #+BEGIN_SRC ipython
   from rpy2.robjects import r
