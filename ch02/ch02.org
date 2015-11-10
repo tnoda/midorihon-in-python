@@ -264,3 +264,15 @@ dtype: float64
 
 このように ~plot()~ 関数を呼ぶと y と prob との関係が図示されます。ここで， ~plot()~ 関数の引数 ~o--~ によって「丸と折れ線による図示」になります。
 
+つぎに，観測データのヒストグラムに平均 3.56 のポアソン分布を重ねてみます。
+
+#+BEGIN_SRC ipython :file ./figs/fig_2-5.png
+  plt.plot(prob.mul(50), 'o--')
+  plt.hist(data, bins=np.arange(-0.5, 8.5, 1.0))
+#+END_SRC
+
+#+RESULTS:
+[[file:./figs/fig_2-5.png]]
+
+
+観察されたばらつきがポアソン分布で表現できているみたいだなぁと思いました。
