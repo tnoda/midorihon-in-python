@@ -1,3 +1,5 @@
+#+OPTIONS: num:nil
+
 * 第2章 確率分布と統計モデルの最尤推定
   :PROPERTIES:
   :header-args:ipython: :session mysession :exports both
