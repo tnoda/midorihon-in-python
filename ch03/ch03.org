@@ -649,7 +649,7 @@ Model Family:                 Poisson   Df Model:                            1
 Link Function:                    log   Scale:                             1.0
 Method:                          IRLS   Log-Likelihood:                -235.39
 Date:                Tue, 10 Nov 2015   Deviance:                       84.993
-Time:                        21:04:59   Pearson chi2:                     83.8
+Time:                        21:31:25   Pearson chi2:                     83.8
 No. Iterations:                     7                                         
 ==============================================================================
                  coef    std err          z      P>|z|      [95.0% Conf. Int.]
@@ -716,4 +716,64 @@ Python を使ってこのモデルの最大対数尤度を評価するには，
 
 #+RESULTS:
 [[file:./figs/fig_3-7.png]]
+
+
+** 3.5 説明変数が因子型の統計モデル
+
+説明変数が因子型であっても，ダミー変数を準備するといった工夫も必要なく，モデル式を指定できます。
+
+#+BEGIN_SRC ipython
+  y, X = dmatrices('y ~ C(f)', data=d, return_type='dataframe')
+  fit_f = sm.GLM(y, X, dat=d, family=Poisson()).fit()
+  fit_f.summary()
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+<class 'statsmodels.iolib.summary.Summary'>
+"""
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                 Poisson   Df Model:                            1
+Link Function:                    log   Scale:                             1.0
+Method:                          IRLS   Log-Likelihood:                -237.63
+Date:                Tue, 10 Nov 2015   Deviance:                       89.475
+Time:                        21:32:33   Pearson chi2:                     87.1
+No. Iterations:                     7                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [95.0% Conf. Int.]
+------------------------------------------------------------------------------
+Intercept      2.0516      0.051     40.463      0.000         1.952     2.151
+C(f)[T.T]      0.0128      0.071      0.179      0.858        -0.127     0.153
+==============================================================================
+"""
+#+end_example
+
+
+パラメーターの推定値 (coef セクション) の出漁をみると，施肥効果 $f_i$ の係数の名前は ~C(f)[T.T]~ となっていて，これは説明変数 $f_i$ が ~T~ 水準でとる値を示しています。説明変数 $f_i$ には ~C~ と ~T~ の 2 水準が設定されています。 ~GLM~ 関数は最初の水準の値を 0 とおき，これを基準にして ~T~ のような他の水準の値を推定します。もし個体 $i$ の $f_i$ が ~C~ ならば
+
+\begin{equation}
+\lambda_i = exp(2.05+0) = exp(2.05) = 7.77
+\end{equation}
+
+であり，もし ~T~ ならば
+
+\begin{equation}
+\lambda_i = exp(2.05+0.0128) = exp(2.0628) = 7.87
+\end{equation}
+
+となります。このように，推定されたモデルでは「肥料をやると平均種子数がほんの少しだけ増える」と予測しています。
+
+このモデルで最大対数尤度は
+
+#+BEGIN_SRC ipython
+  fit_f.llf
+#+END_SRC
+
+#+RESULTS:
+: -237.62725696068682
+
+となり，サイズ $x_i$ だけのモデルの最大対数尤度 -235.4 より小さく，あてはまりが悪くなっています。
 
