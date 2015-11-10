@@ -33,7 +33,7 @@ Pandas 使います。
 #+END_SRC
 
 #+RESULTS:
-: <FloatVector - Python:0x106f7aea8 / R:0x10830a3e0>
+: <FloatVector - Python:0x10dc0e1b8 / R:0x10d8d0980>
 : [2.000000, 2.000000, 4.000000, ..., 3.000000, 2.000000, 3.000000]
 
 
@@ -276,3 +276,77 @@ dtype: float64
 
 
 観察されたばらつきがポアソン分布で表現できているみたいだなぁと思いました。
+
+
+** 2.3 ポアソン分布とは何か？
+
+
+さまざまな平均 ($$\lambda$$) のポアソン分布を描いてみます。
+
+#+BEGIN_SRC ipython :file ./figs/fig_2-6.png
+  y = np.arange(0, 21)
+  lambdas = [3.5, 7.7, 15.1]
+  styles = ['ro--', 'go--', 'bo--']
+  labels = ['3.5', '7.7', '15.1']
+  for i in range(3):
+      prob = Series(poisson.pmf(y, lambdas[i]), index=y)
+      plt.plot(prob, styles[i], label=labels[i])
+  plt.legend(loc='best', title='lambda')
+  plt.xlabel('y')
+  plt.ylabel('prob')
+
+#+END_SRC
+
+#+RESULTS:
+[[file:./figs/fig_2-6.png]]
+
+
+
+** 2.4 ポアソン分布のパラメータの最尤推定
+*** subplots()
+平均 $$\lambda$$ (lambda) を変化させていったポアソン分布と，観測データのあてはまりの良さ（対数尤度 ~logL~ ）をグラフにしてみましょう。
+
+#+BEGIN_SRC ipython :file ./figs/fig_2-7.png
+  y = np.arange(0, 10)
+  lambdas = np.arange(2.0, 5.6, 0.4)
+
+  # Figure
+  fig, axes = plt.subplots(3, 3, sharex=True, sharey=True, figsize=(12, 8))
+  for i in range(9):
+      mu = lambdas[i]
+      prob = Series(poisson.pmf(y, mu), index=y)
+      logL = sum(poisson.logpmf(data, mu))
+      row, col = i / 3, i % 3
+      ax = axes[row, col]
+      ax.plot(prob.mul(50), 'o--', label='lambda=%.1f' % mu)
+      ax.hist(data, bins=np.arange(-0.5, 8.5, 1.0), label='log L=%.1f' % logL)
+      ax.legend(loc='best', fontsize=8)
+
+#+END_SRC
+
+#+RESULTS:
+[[file:./figs/fig_2-7.png]]
+
+
+*** FontProperties
+
+この図を見ると，対数尤度が大きい（ゼロに近い）ほど観測データとポアソン分布が「似ている」ように見えます。さらに対数尤度 $$ log L(\lambda) $$ と $$ \lambda $$ の関係を調べるために，次のような図をつくってみましょう。
+
+#+BEGIN_SRC ipython :file ./figs/fig_2-8.png
+  from subprocess import check_output
+
+  lambdas = Series(np.arange(2, 5, 0.1))
+  logL = lambda m: sum(poisson.logpmf(data, m))
+  plt.plot(lambdas, lambdas.apply(logL), '-')
+
+  from matplotlib.font_manager import FontProperties
+  noto_sans = check_output("fc-list | grep 'Noto Sans CJK JP Regular' | sed -e 's/:.*//'",
+                           shell=True)
+  noto_sans = noto_sans[:-1]
+  plt.ylabel(u'対数尤度', fontproperties=FontProperties(fname=noto_sans, size=14))
+#+END_SRC
+
+#+RESULTS:
+[[file:./figs/fig_2-8.png]]
+
+
