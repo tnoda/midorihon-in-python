@@ -33,7 +33,7 @@ Pandas 使います。
 #+END_SRC
 
 #+RESULTS:
-: <FloatVector - Python:0x7f6512896638 / R:0x1fff070>
+: <FloatVector - Python:0x106f7aea8 / R:0x10830a3e0>
 : [2.000000, 2.000000, 4.000000, ..., 3.000000, 2.000000, 3.000000]
 
 
@@ -189,7 +189,7 @@ Pandas で度数分布を得る方法はいろいろありますが、ここで�
 
 *** Series.var()
 
-あるデータのばらつき (variability) をあらわす標本統計量の礼として、標本分散 (sample variance) があげられます。
+あるデータのばらつき (variability) をあらわす標本統計量の例として、標本分散 (sample variance) があげられます。
 
 #+BEGIN_SRC ipython
   data.var()
