@@ -220,3 +220,47 @@ Pandas で度数分布を得る方法はいろいろありますが、ここで�
 
 
 ** 2.2 データと確率分布の対応関係をながめる
+
+*** poisson.pmf() (probability mass function)
+
+「平均 3.56 のポアソン分布」なるものを， Python を使ってグラフとして図示しましょう。平均 3.56 のポアソン分布にしたがって「種子数が $y$ であると観察される確率」を生成させるためには，たとえば以下のように Python に指示します。
+
+#+BEGIN_SRC ipython
+  from scipy.stats import poisson
+
+  y = np.arange(0, 10)
+  prob = Series(poisson.pmf(y, 3.56), index=y)
+  prob
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+0    0.028439
+1    0.101242
+2    0.180211
+3    0.213851
+4    0.190327
+5    0.135513
+6    0.080404
+7    0.040891
+8    0.018197
+9    0.007198
+dtype: float64
+#+end_example
+
+
+*** plot(), 'o--'
+
+
+これでは分かりにくいので図示してみると，
+
+#+BEGIN_SRC ipython :file ./figs/fig_2-3.png
+  plt.plot(prob, 'o--')
+#+END_SRC
+
+#+RESULTS:
+[[file:./figs/fig_2-3.png]]
+
+
+このように ~plot()~ 関数を呼ぶと y と prob との関係が図示されます。ここで， ~plot()~ 関数の引数 ~o--~ によって「丸と折れ線による図示」になります。
+
