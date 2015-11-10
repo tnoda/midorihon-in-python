@@ -600,3 +600,92 @@ Pandas データフレームの ~info()~ メソッドを使うと，あるデー
 [[file:./figs/fig_3-3.png]]
 
 
+
+** 3.4.2 ポアソン回帰の統計モデル - あてはめとあてはまりの良さ
+
+*** statsmodels.api.GLM(), patsy.dmatrices()
+
+Python ではたいへんお手軽に GLM のあてはめができるようになっていて，
+
+#+BEGIN_SRC ipython
+  import statsmodels.api as sm
+  from patsy import dmatrices
+  from statsmodels.genmod.families.family import Poisson
+
+  y, X = dmatrices('y ~ x', data=d, return_type='dataframe')
+  fit = sm.GLM(y, X, family=Poisson()).fit()
+#+END_SRC
+
+#+RESULTS:
+
+と指定すれば，切片 $\beta_1$ と傾き $\beta_2$ の最尤推定値が得られます。 ~sm.GLM()~ 関数で指定している内容は次のようになります。
+
++ モデル式
+  - R 風のモデル式を使うために patsy の ~dmatrices()~ 関数を使っています
+  - ~y ~ x~ というのがそれです
++ 確率分布の指定
+  - ~family=Poisson()~ でポアソン分布を指定しています
+  - ~Poisson()~ のデフォルトのリンク関数は対数リンク関数です
++ データフレームの指定
+  - ~data=d~ で指定します
+
+*** summary()
+
+では，この例題の推定結果を格納している ~fit~ を調べてみましょう。
+
+#+BEGIN_SRC ipython
+  fit.summary()
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+<class 'statsmodels.iolib.summary.Summary'>
+"""
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  100
+Model:                            GLM   Df Residuals:                       98
+Model Family:                 Poisson   Df Model:                            1
+Link Function:                    log   Scale:                             1.0
+Method:                          IRLS   Log-Likelihood:                -235.39
+Date:                Tue, 10 Nov 2015   Deviance:                       84.993
+Time:                        20:38:24   Pearson chi2:                     83.8
+No. Iterations:                     7                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [95.0% Conf. Int.]
+------------------------------------------------------------------------------
+Intercept      1.2917      0.364      3.552      0.000         0.579     2.005
+x              0.0757      0.036      2.125      0.034         0.006     0.145
+==============================================================================
+"""
+#+end_example
+
+下段に注目してみましょう。この部分の読みかたを説明してみます。 ~Intercept~ は切片 $\beta_1$ に，説明変数 ~x~ の係数は傾き $\beta_2$ に対応しています。 ~coef~ は推定値のことで，結果出力を見ると，最尤推定値は $\hat{\beta_1} = 1.29$ と $\hat{\beta_2} = 0.0757$ であるとわかります。 ~std err~ はパラメーターの標準誤差の推定値です。標準誤差 (standard error, SE) とは，この場合には推定値 $\hat{\beta_1}$, と ${\hat{\beta_2}$ の「ばらつき」を標準偏差であらわしたものです。
+
+次にあらわれす ~z~ は z 値と呼ばれる統計量であり最尤推定値を SE で除した値です。これによって， Wald 信頼区間というものを構成でき，推定値たちがゼロから十分に離れているかどうかの粗い目安になります。この z 値は Wald 統計量 (Wald statistics) とも呼ばれています。
+
+最後の ~P>|z|~ は，この場合に限定して言えば，平均が z 値の絶対値であり，標準偏差が 1 の正規分布におけるマイナス無限大からゼロまでの値をとる確率の 2 倍です。この確率が大きいほど z 値がゼロに近くなり，推定値 $\hat{\beta_1}$ や $\hat{\beta_2}$ がゼロに近いことを表現するひとつの方法です。
+
+*** GLMResults.llm, GLMResults.df_model
+
+Python を使ってこのモデルの最大対数尤度を評価するには，
+
+#+BEGIN_SRC ipython
+  fit.llf
+#+END_SRC
+
+#+RESULTS:
+: -235.38625076986077
+
+とすればよく，最大対数尤度は -234.5 くらいとわかります。モデルの自由度 (degree of freedom) は
+
+#+BEGIN_SRC ipython
+  fit.df_model
+#+END_SRC
+
+#+RESULTS:
+: 1
+
+とすればよいです。ただし，切片 (intercept) はこの ~df_model~ には含まれないことに注意してください。
+
+
