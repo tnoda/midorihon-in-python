@@ -649,7 +649,7 @@ Model Family:                 Poisson   Df Model:                            1
 Link Function:                    log   Scale:                             1.0
 Method:                          IRLS   Log-Likelihood:                -235.39
 Date:                Tue, 10 Nov 2015   Deviance:                       84.993
-Time:                        20:38:24   Pearson chi2:                     83.8
+Time:                        21:04:59   Pearson chi2:                     83.8
 No. Iterations:                     7                                         
 ==============================================================================
                  coef    std err          z      P>|z|      [95.0% Conf. Int.]
@@ -688,4 +688,32 @@ Python を使ってこのモデルの最大対数尤度を評価するには，
 
 とすればよいです。ただし，切片 (intercept) はこの ~df_model~ には含まれないことに注意してください。
 
+
+** 3.4.3 ポアソン回帰モデルによる予測
+
+このポアソン回帰の推定結果を使って，さまざまな体サイズ $x$ における平均種子数 $\lambda$ の予測 (prediction) をしてみましょう。個体の体サイズ $x$ の関数である平均種子数 $\lambda$ の関数に推定値 ${\hat{\beta_1}, \hat{\beta_2}}$ を代入した関数
+
+\begin{equation}
+  \lambda = exp(1.29+0.0757x)
+\end{equation}
+
+を使って Python で図示してみましょう。
+
+*** GLMResults.predict()
+
+#+BEGIN_SRC ipython :file ./figs/fig_3-7.png
+  fig = plt.figure()
+  ax = fig.add_subplot(1, 1, 1)
+  labels = ['C', 'T']
+  dfs = [d[d['f'] == x] for x in labels]
+  colors = ['Red', 'Blue']
+  for i in range(2):
+      dfs[i].plot(kind='scatter', x='x', y='y', color=colors[i], ax=ax)
+  yy = fit.predict(X)
+  df = DataFrame({'x': X.x, 'y': yy}).sort_index(by='x')
+  plt.plot(df.x, df.y, 'g-')
+#+END_SRC
+
+#+RESULTS:
+[[file:./figs/fig_3-7.png]]
 
