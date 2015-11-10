@@ -7,7 +7,7 @@ Pandas 使います。
 
 #+begin_src ipython
   %matplotlib inline
-  import matplotlib.pyplot as P
+  import matplotlib.pyplot as plt
   from numpy.random import randn
   import numpy as np
   from pandas import Series, DataFrame
@@ -172,7 +172,7 @@ Pandas で度数分布を得る方法はいろいろありますが、ここで�
 それをヒストグラム (histogram) として図示してみましょう
 
 #+BEGIN_SRC ipython :file ./figs/fig_2-2.png
-  P.hist(data, bins=np.arange(-0.5, 8.5, 1.0))
+  plt.hist(data, bins=np.arange(-0.5, 8.5, 1.0))
 #+END_SRC
 #+RESULTS:
 [[file:./figs/fig_2-2.png]]
