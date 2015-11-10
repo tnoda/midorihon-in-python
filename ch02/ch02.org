@@ -33,7 +33,7 @@ Pandas 使います。
 #+END_SRC
 
 #+RESULTS:
-: <FloatVector - Python:0x10dc0e1b8 / R:0x10d8d0980>
+: <FloatVector - Python:0x11cbc0dd0 / R:0x11bdd39f0>
 : [2.000000, 2.000000, 4.000000, ..., 3.000000, 2.000000, 3.000000]
 
 
@@ -338,12 +338,6 @@ dtype: float64
   lambdas = Series(np.arange(2, 5, 0.1))
   logL = lambda m: sum(poisson.logpmf(data, m))
   plt.plot(lambdas, lambdas.apply(logL), '-')
-
-  from matplotlib.font_manager import FontProperties
-  noto_sans = check_output("fc-list | grep 'Noto Sans CJK JP Regular' | sed -e 's/:.*//'",
-                           shell=True)
-  noto_sans = noto_sans[:-1]
-  plt.ylabel(u'対数尤度', fontproperties=FontProperties(fname=noto_sans, size=14))
 #+END_SRC
 
 #+RESULTS:
@@ -363,7 +357,7 @@ dtype: float64
   # LaTeX
   from matplotlib import rc
   rc('text', usetex=True)
-  plt.xlabel('\hat{\lambda}')
+  plt.xlabel(u'\hat{\lambda}')
 #+END_SRC
 
 #+RESULTS:
@@ -377,9 +371,9 @@ dtype: float64
 #+END_SRC
 
 #+RESULTS:
-: array([4, 2, 3, 1, 2, 3, 2, 1, 1, 1, 5, 2, 1, 1, 1, 4, 2, 3, 3, 2, 2, 7, 4,
-:        2, 2, 3, 5, 1, 1, 2, 4, 2, 1, 4, 2, 3, 7, 1, 4, 3, 1, 4, 0, 1, 4, 4,
-:        4, 4, 4, 4])
+: array([2, 5, 2, 3, 1, 1, 7, 5, 3, 2, 4, 3, 4, 2, 1, 2, 4, 2, 2, 4, 2, 2, 1,
+:        5, 0, 2, 0, 1, 1, 3, 3, 1, 2, 3, 1, 3, 2, 2, 1, 2, 3, 0, 2, 1, 2, 1,
+:        2, 2, 2, 1])
 
 と指定します。
 
