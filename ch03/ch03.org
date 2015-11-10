@@ -565,3 +565,38 @@ Pandas データフレームの ~info()~ メソッドを使うと，あるデー
 : C    50
 : dtype: int64
 
+
+** 3.3 統計モデリングの前にデータを図示する
+
+観測データに余計な手を加えないで，データ全体をよく見るには ~plot()~ 関数などを使うと便利でしょう。
+
+*** plot(kind='scatter', ...)
+
+#+BEGIN_SRC ipython :file ./figs/fig_3-2.png
+  fig = plt.figure()
+  ax = fig.add_subplot(1, 1, 1)
+  labels = ['C', 'T']
+  dfs = [d[d['f'] == x] for x in labels]
+  colors = ['Red', 'Blue']
+  for i in range(2):
+      dfs[i].plot(kind='scatter', x='x', y='y', color=colors[i], label=labels[i], ax=ax)
+#+END_SRC
+
+#+RESULTS:
+[[file:./figs/fig_3-2.png]]
+
+
+複数のグループを一枚の散布図に重ねたいときには，同じ ~ax~ に対して何度も ~plot()~ します。
+
+*** boxplot(by=...)
+
+箱ひげ図を描きたいときには ~boxplot()~ メソッドを使います。
+
+#+BEGIN_SRC ipython :file ./figs/fig_3-3.png
+  d[['y', 'f']].boxplot(by='f')
+#+END_SRC
+
+#+RESULTS:
+[[file:./figs/fig_3-3.png]]
+
+
