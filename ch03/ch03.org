@@ -1,0 +1,567 @@
+#+OPTIONS: num:nil
+
+* 第3章 一般線形化モデル (GLM)
+  :PROPERTIES:
+  :header-args:ipython: :session ch03 :exports both
+  :END:
+
+#+begin_src ipython
+  %matplotlib inline
+  import matplotlib.pyplot as plt
+  plt.style.use('ggplot')
+  from numpy.random import randn
+  import numpy as np
+  from pandas import Series, DataFrame
+  import pandas as pd
+  pd.__version__
+#+end_src
+
+#+RESULTS:
+: u'0.17.0'
+
+
+** 3.2 観測されたデータを調べる
+
+
+*** pd.read_csv()
+
+データのファイル名を ~data3a.csv~ とすると， Python では
+
+#+BEGIN_SRC ipython
+  d = pd.read_csv('data3a.csv')
+#+END_SRC
+
+#+RESULTS:
+
+と命じるだけでファイルを読み込んで，その内容を格納した Pandas データフレイムに ~d~ という名前がつけられます。 ob-ipython で ~d~ とすると全 100 個体ぶんのデータが表示されます。
+
+#+BEGIN_SRC ipython
+  d
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+     y      x  f
+0    6   8.31  C
+1    6   9.44  C
+2    6   9.50  C
+3   12   9.07  C
+4   10  10.16  C
+5    4   8.32  C
+6    9  10.61  C
+7    9  10.06  C
+8    9   9.93  C
+9   11  10.43  C
+10   6  10.36  C
+11  10  10.15  C
+12   6  10.92  C
+13  10   8.85  C
+14  11   9.42  C
+15   8  11.11  C
+16   3   8.02  C
+17   8  11.93  C
+18   5   8.55  C
+19   5   7.19  C
+20   4   9.83  C
+21  11  10.79  C
+22   5   8.89  C
+23  10  10.09  C
+24   6  11.63  C
+25   6  10.21  C
+26   7   9.45  C
+27   9  10.44  C
+28   3   9.44  C
+29  10  10.48  C
+..  ..    ... ..
+70  10  10.54  T
+71   8  11.30  T
+72   8  12.40  T
+73   7  10.18  T
+74   5   9.53  T
+75   6  10.24  T
+76   8  11.76  T
+77   9   9.52  T
+78   9  10.40  T
+79   6   9.96  T
+80   7  10.30  T
+81  10  11.54  T
+82   6   9.42  T
+83  11  11.28  T
+84  11   9.73  T
+85  11  10.78  T
+86   5  10.21  T
+87   6  10.51  T
+88   4  10.73  T
+89   5   8.85  T
+90   6  11.20  T
+91   5   9.86  T
+92   8  11.54  T
+93   5  10.03  T
+94   9  11.88  T
+95   8   9.15  T
+96   6   8.52  T
+97   8  10.24  T
+98   7  10.86  T
+99   9   9.97  T
+
+[100 rows x 3 columns]
+#+end_example
+
+最終行に表示されているように， ~d~ には全 100 個体ぶんのデータが 100 行 3 列の行列のような形式で格納されているように見えます。このデータでは，最初の列 y には種子数， x には個体の体サイズ， f には施肥処理の値が入っています。
+
+
+*** astype('category)
+
+この d の列ごとにデータを表示させてみましょう。 
+
+#+BEGIN_SRC ipython
+  d.x
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+0      8.31
+1      9.44
+2      9.50
+3      9.07
+4     10.16
+5      8.32
+6     10.61
+7     10.06
+8      9.93
+9     10.43
+10    10.36
+11    10.15
+12    10.92
+13     8.85
+14     9.42
+15    11.11
+16     8.02
+17    11.93
+18     8.55
+19     7.19
+20     9.83
+21    10.79
+22     8.89
+23    10.09
+24    11.63
+25    10.21
+26     9.45
+27    10.44
+28     9.44
+29    10.48
+      ...  
+70    10.54
+71    11.30
+72    12.40
+73    10.18
+74     9.53
+75    10.24
+76    11.76
+77     9.52
+78    10.40
+79     9.96
+80    10.30
+81    11.54
+82     9.42
+83    11.28
+84     9.73
+85    10.78
+86    10.21
+87    10.51
+88    10.73
+89     8.85
+90    11.20
+91     9.86
+92    11.54
+93    10.03
+94    11.88
+95     9.15
+96     8.52
+97    10.24
+98    10.86
+99     9.97
+Name: x, dtype: float64
+#+end_example
+
+
+#+BEGIN_SRC ipython
+  d.x
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+0      8.31
+1      9.44
+2      9.50
+3      9.07
+4     10.16
+5      8.32
+6     10.61
+7     10.06
+8      9.93
+9     10.43
+10    10.36
+11    10.15
+12    10.92
+13     8.85
+14     9.42
+15    11.11
+16     8.02
+17    11.93
+18     8.55
+19     7.19
+20     9.83
+21    10.79
+22     8.89
+23    10.09
+24    11.63
+25    10.21
+26     9.45
+27    10.44
+28     9.44
+29    10.48
+      ...  
+70    10.54
+71    11.30
+72    12.40
+73    10.18
+74     9.53
+75    10.24
+76    11.76
+77     9.52
+78    10.40
+79     9.96
+80    10.30
+81    11.54
+82     9.42
+83    11.28
+84     9.73
+85    10.78
+86    10.21
+87    10.51
+88    10.73
+89     8.85
+90    11.20
+91     9.86
+92    11.54
+93    10.03
+94    11.88
+95     9.15
+96     8.52
+97    10.24
+98    10.86
+99     9.97
+Name: x, dtype: float64
+#+end_example
+
+#+BEGIN_SRC ipython
+  d.f
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+0     C
+1     C
+2     C
+3     C
+4     C
+5     C
+6     C
+7     C
+8     C
+9     C
+10    C
+11    C
+12    C
+13    C
+14    C
+15    C
+16    C
+17    C
+18    C
+19    C
+20    C
+21    C
+22    C
+23    C
+24    C
+25    C
+26    C
+27    C
+28    C
+29    C
+     ..
+70    T
+71    T
+72    T
+73    T
+74    T
+75    T
+76    T
+77    T
+78    T
+79    T
+80    T
+81    T
+82    T
+83    T
+84    T
+85    T
+86    T
+87    T
+88    T
+89    T
+90    T
+91    T
+92    T
+93    T
+94    T
+95    T
+96    T
+97    T
+98    T
+99    T
+Name: f, dtype: object
+#+end_example
+
+施肥処理の有無をあらわす f 列は R とは違って文字列 (object) としてデータが格納されています。これを R の因子型 (factor) と同様のカテゴリー型にするには ~astype()~ メソッドを利用します。
+
+#+BEGIN_SRC ipython
+  d.f.astype('category')
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+0     C
+1     C
+2     C
+3     C
+4     C
+5     C
+6     C
+7     C
+8     C
+9     C
+10    C
+11    C
+12    C
+13    C
+14    C
+15    C
+16    C
+17    C
+18    C
+19    C
+20    C
+21    C
+22    C
+23    C
+24    C
+25    C
+26    C
+27    C
+28    C
+29    C
+     ..
+70    T
+71    T
+72    T
+73    T
+74    T
+75    T
+76    T
+77    T
+78    T
+79    T
+80    T
+81    T
+82    T
+83    T
+84    T
+85    T
+86    T
+87    T
+88    T
+89    T
+90    T
+91    T
+92    T
+93    T
+94    T
+95    T
+96    T
+97    T
+98    T
+99    T
+Name: f, dtype: category
+Categories (2, object): [C, T]
+#+end_example
+
+この Python の出力では，最終行の ~Categories~ の行で ~f~ 列内の水準を示しています。
+
+#+BEGIN_SRC ipython
+  d.f.astype('category').cat.ordered
+#+END_SRC
+
+#+RESULTS:
+: False
+
+カテゴリー型の水準の値には順番がある場合と無い場合があり，この場合はありません。 Pandas のカテゴリー型データにはデフォルトでは順番がありません。順番が必要な場合は ~astype()~ で明示的に指定します。
+
+#+BEGIN_SRC ipython
+  d.f = d.f.astype('category', ordered=True)
+  d.f.cat.ordered
+#+END_SRC
+
+#+RESULTS:
+: True
+
+#+BEGIN_SRC ipython
+d.f
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+0     C
+1     C
+2     C
+3     C
+4     C
+5     C
+6     C
+7     C
+8     C
+9     C
+10    C
+11    C
+12    C
+13    C
+14    C
+15    C
+16    C
+17    C
+18    C
+19    C
+20    C
+21    C
+22    C
+23    C
+24    C
+25    C
+26    C
+27    C
+28    C
+29    C
+     ..
+70    T
+71    T
+72    T
+73    T
+74    T
+75    T
+76    T
+77    T
+78    T
+79    T
+80    T
+81    T
+82    T
+83    T
+84    T
+85    T
+86    T
+87    T
+88    T
+89    T
+90    T
+91    T
+92    T
+93    T
+94    T
+95    T
+96    T
+97    T
+98    T
+99    T
+Name: f, dtype: category
+Categories (2, object): [C < T]
+#+end_example
+
+順番のあるカテゴリー型列を表示させた場合，最終行の ~Categories~ のところに ~[C < T]~ と 不等号が入ります。
+
+
+*** info(), dtypes
+
+Pandas データフレームの ~info()~ メソッドを使うと，あるデータフレームにどういう型のデータが含まれているかを調べられます。
+
+#+BEGIN_SRC ipython :results output
+  d.info()
+#+END_SRC
+
+#+RESULTS:
+: <class 'pandas.core.frame.DataFrame'>
+: Int64Index: 100 entries, 0 to 99
+: Data columns (total 3 columns):
+: y    100 non-null int64
+: x    100 non-null float64
+: f    100 non-null category
+: dtypes: category(1), float64(1), int64(1)
+: memory usage: 2.5 KB
+
+また，型名だけで十分であれば ~dtypes~ を使うこともできます。
+
+#+BEGIN_SRC ipython
+  d.dtypes
+#+END_SRC
+
+#+RESULTS:
+: y       int64
+: x     float64
+: f    category
+: dtype: object
+
+
+*** describe()
+
+さて， Pandas データフレームの ~describe()~ メソッドを使って，この ~d~ と名づけられたデータフレームの概要を調べてみましょう。
+
+#+BEGIN_SRC ipython
+  d.describe()
+#+END_SRC
+
+#+RESULTS:
+:                 y           x
+: count  100.000000  100.000000
+: mean     7.830000   10.089100
+: std      2.624881    1.008049
+: min      2.000000    7.190000
+: 25%      6.000000    9.427500
+: 50%      8.000000   10.155000
+: 75%     10.000000   10.685000
+: max     15.000000   12.400000
+
+このように ~describe()~ を用いると各列の要約を表示することができます。 ~f~ 列の要約は全体の要約では表示されていないので，このような場合は， ~f~ 列単独で ~describe()~ します。
+
+#+BEGIN_SRC ipython
+  d.f.describe()
+#+END_SRC
+
+#+RESULTS:
+: count     100
+: unique      2
+: top         T
+: freq       50
+: Name: f, dtype: object
+
+どのレベルの要素がいくつあるのかは ~describe()~ では分からないため， ~value_count()~ で数えます。
+
+#+BEGIN_SRC ipython
+  d.f.value_counts()
+#+END_SRC
+
+#+RESULTS:
+: T    50
+: C    50
+: dtype: int64
+
