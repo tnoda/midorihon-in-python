@@ -6,7 +6,18 @@
 
 の R サンプルコードを Python で書いていきます。
 
-** ob-ipython
+** Tumblr
+
++ [[http://tnoda-journal.tumblr.com/post/132976437282/midorihon-in-python-1][緑本 in Python (1): 第2章]]
+
+** 環境
+
+*** Python
+
+[[https://www.continuum.io/why-anaconda][Anaconda]] 2.4.0 のほかに [[http://rpy.sourceforge.net/][rpy2]] を使用しています。
+
+
+*** ob-ipython
 
 ソースコードは Emacs の Org mode ファイルで、 [[https://github.com/gregsexton/ob-ipython][ob-ipython]] を使って記述・実行しています。
 
