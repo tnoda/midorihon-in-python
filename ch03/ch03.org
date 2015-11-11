@@ -1,9 +1,8 @@
 #+OPTIONS: num:nil
+#+PROPERTY: header-args:ipython  :session ch03 :exports both
+
 
 * 第3章 一般線形化モデル (GLM)
-  :PROPERTIES:
-  :header-args:ipython: :session ch03 :exports both
-  :END:
 
 #+begin_src ipython
   %matplotlib inline
