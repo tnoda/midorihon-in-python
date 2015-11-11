@@ -1,8 +1,11 @@
+#+TITLE: 緑本 in Python (2)
 #+OPTIONS: num:nil
 #+PROPERTY: header-args:ipython  :session ch03 :exports both
 
+[[http://hosho.ees.hokudai.ac.jp/~kubo/ce/IwanamiBook.html][久保拓弥, データ解析のための統計モデリング入門, 岩波書店, 2012. （通称緑本）]] を Python で書いてく練習の 2 回目は，第 3 章の一般化線形モデル (GLM) です。くわしくは [[https://github.com/tnoda/midorihon-in-python]]
 
-* 第3章 一般線形化モデル (GLM)
+
+* 第3章 一般化線形モデル (GLM)
 
 #+begin_src ipython
   %matplotlib inline
