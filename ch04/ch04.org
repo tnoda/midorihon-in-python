@@ -1,0 +1,102 @@
+#+TITLE: 緑本 in Python (3): 第4章
+#+OPTIONS: num:nil
+#+PROPERTY: header-args:ipython  :session ch04 :exports both
+
+[[http://hosho.ees.hokudai.ac.jp/~kubo/ce/IwanamiBook.html][久保拓弥, データ解析のための統計モデリング入門, 岩波書店, 2012. （通称緑本）]] を Python で書いていく練習の3回目は，第4章の GLM のモデル選択です。 4.4 以降は難しいので後まわしとし，ここでは 4.3 まで進みます。くわしくは [[https://github.com/tnoda/midorihon-in-python]]
+
+
+#+begin_src ipython
+  %matplotlib inline
+  import matplotlib.pyplot as plt
+  plt.style.use('ggplot')
+
+#+end_src
+
+#+RESULTS:
+
+
+* 第4章 GLM のモデル選択
+
+ポアソン回帰の GLM を使って，前章の例題データに関して線形予測子に切片だけがあるモデル ($\log \lambda=\bega_1$, パラメータ数 $k=1$) と説明変数の 6 次式 ($\log \lambda = \beta_1 + \beta2 x + \dots + \beta_7 x^6$, パラメータ数 $k=7$) をプロットしてみます。
+
+#+BEGIN_SRC ipython :file ./figs/fig_4-1.png
+  import numpy as np
+  import pandas as pd
+  from pandas import DataFrame
+  import matplotlib.pyplot as plt
+  from patsy import dmatrices, dmatrix
+  from statsmodels.api import GLM
+  from statsmodels.genmod.families.family import Poisson
+
+  class Fig_4_1:
+      def __init__(self):
+          self.d = pd.read_csv('data3a.csv')[['y', 'x']]
+          self.fig, self.axes = plt.subplots(1, 2, sharey=True, sharex=True, figsize=(10, 5))
+
+      def plot_scatter(self, ax):
+          d.plot.scatter(x='x', y='y', ax=ax)
+
+      def plot_a(self):
+          ax = self.axes[0]
+          self.plot_scatter(ax)
+          y, X = dmatrices('y ~ 1', data=d, return_type='dataframe')
+          fit = GLM(y, X, family=Poisson()).fit()
+          d['k=1'] = fit.predict(X)
+          d.sort_index(by='x').plot.line(x='x', y='k=1', ax=ax)
+
+      def plot_b(self):
+          ax = self.axes[1]
+          self.plot_scatter(ax)
+
+          # Model
+          formula = 'y~'
+          for i in range(1, 7):
+              formula += '+np.power(x,%d)' % i
+          y, X = dmatrices(formula, data=d, return_type='dataframe')
+          fit = GLM(y, X, family=Poisson()).fit()
+          dd = DataFrame({'x': np.arange(d.x.min(), d.x.max(), 0.01)})
+          xx = dmatrix(formula[2:], data=dd, return_type='dataframe')
+          dd['k=7'] = fit.predict(xx)
+          dd.sort_index(by='x').plot.line(x='x', y='k=7', ax=ax)
+
+      def plot(self):
+          self.plot_a()
+          self.plot_b()
+
+
+  Fig_4_1().plot()
+#+END_SRC
+
+#+RESULTS:
+[[file:./figs/fig_4-1.png]]
+
+
+** 4.2 統計モデルのあてはまりの悪さ: 逸脱度
+
+フルモデルと null モデルの最大対数尤度を求めてみます。
+
+#+BEGIN_SRC ipython
+  import pandas as pd
+  from pandas import DataFrame
+  from scipy.stats import poisson
+  from patsy import dmatrices
+  from statsmodels.api import GLM
+  from statsmodels.genmod.families.family import Poisson
+
+
+  # Full model
+  d = pd.read_csv('data3a.csv')
+  log_lik_full = sum(poisson.logpmf(d.y, d.y))
+
+  # Null model
+  y, X = dmatrices('y~1', data=d, return_type='dataframe')
+  fit_null = GLM(y, X, family=Poisson()).fit()
+  log_lik_null = fit_null.llf
+
+  (log_lik_full, log_lik_null)
+
+#+END_SRC
+
+#+RESULTS:
+: (-192.8897525244958, -237.6432213092867)
+
