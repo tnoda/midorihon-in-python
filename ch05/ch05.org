@@ -1,0 +1,161 @@
+#+TITLE: 緑本 in Python (4): 第5章
+#+OPTIONS: num:nil
+#+PROPERTY: header-args:ipython  :session ch05 :exports both :results value silent
+#+PROPERTY: header-args          :cache yes
+
+[[http://hosho.ees.hokudai.ac.jp/~kubo/ce/IwanamiBook.html][久保拓弥, データ解析のための統計モデリング入門, 岩波書店, 2012. （通称緑本）]] を Python で書いていく練習の4回目は，第5章の GLM の尤度比検定と検定の非対称性です。 くわしくは [[https://github.com/tnoda/midorihon-in-python]]
+
+
+#+begin_src ipython
+  %matplotlib inline
+  import matplotlib
+  matplotlib.rcParams['text.usetex'] = True
+  matplotlib.rcParams['text.latex.unicode'] = True
+  import matplotlib.pyplot as plt
+  plt.style.use('ggplot')
+#+end_src
+
+
+* 第5章 GLM の尤度比検定と検定の非対称性
+
+** 5.4.1 方法 (1) 汎用性のあるパラメトリックブートストラップ法
+
+この章でも第3章の種子データを使います。
+
+#+BEGIN_SRC ipython
+  import pandas as pd
+  from patsy import dmatrices
+  from statsmodels.api import GLM
+  from statsmodels.genmod.families.family import Poisson
+
+  d = pd.read_csv('data3a.csv')[['y', 'x']]
+  fits = []
+  formulas = ['y ~ 1', 'y ~ x'] 
+  for i in range(2):
+      y, X = dmatrices(formulas[i], data=d, return_type='dataframe')
+      fits.append(GLM(y, X, family=Poisson()).fit())
+#+END_SRC
+
+~GLM()~ による推定結果は，一定モデルと ~x~ モデルそれぞれ ~fit[0]~ と ~fit[1]~ とに格納されています。この ~fits~ にはいろいろな情報が格納されています。たとえば，
+
+#+NAME: fit1-deviance
+#+BEGIN_SRC ipython
+  fits[1].deviance
+#+END_SRC
+
+とすると，
+
+#+CALL: fit1-deviance()
+
+#+RESULTS[f2b650eb5296f72a1f7237c2a65b7fb3443acf5f]:
+: 84.992996490731954
+
+
+のように ~x~ モデルの残差逸脱度を取りだすことができます。これを使って，
+
+#+NAME: fit1-residual-deviance
+#+BEGIN_SRC ipython
+  fits[0].deviance - fits[1].deviance
+#+END_SRC
+
+のように一定モデルと ~x~ モデルの逸脱度の差 $\Delta D_{1,2}$ を計算してみると，
+
+#+CALL: fit1-residual-deviance()
+
+#+RESULTS[f2b650eb5296f72a1f7237c2a65b7fb3443acf5f]:
+: 4.5139410788492569
+
+
+
+やはり逸脱度の差 $\Delta D_{1,2}$ は 4.5 ということにしましょう。
+
+統計学的な検定においては，帰無仮説が真のモデルであるとみなします。帰無仮説である一定モデルで推定された平均種子数は 7.85 個だったので，真のモデルから生成されるデータとは，「平均 7.85 の 100 個のポアソン乱数」となります。まず，ポアソン乱数生成関数 ~numpy.random.poisson()~ を使って，真のモデルから 100 個体分のデータを新しく生成してみます。
+
+#+BEGIN_SRC ipython
+  import numpy as np
+
+  d['y_rnd'] = np.random.poisson(d.y.mean(), 100)
+#+END_SRC
+
+平均と指定している ~d.y.mean()~ は標本平均 7.85 です。さらに ~glm()~ を使って，一定モデルと ~x~ モデルをこの新データにあてはめてみます。
+
+#+NAME: deviance-difference
+#+BEGIN_SRC ipython
+  fits = []
+  formulas = ['y_rnd ~ 1', 'y_rnd ~ x'] 
+  for i in range(2):
+      y, X = dmatrices(formulas[i], data=d, return_type='dataframe')
+      fits.append(GLM(y, X, family=Poisson()).fit())
+  fits[0].deviance - fits[1].deviance
+#+END_SRC
+
+逸脱度の差が，
+
+#+CALL: deviance-difference()
+
+#+RESULTS[f2b650eb5296f72a1f7237c2a65b7fb3443acf5f]:
+: 3.0850125542747691
+
+となりました。これによって「一定モデルが真のモデルである世界」での逸脱度の差がひとつ得られます。これは PB 法の 1 ステップであり，このステップを 1000 回ほど繰りかえすと「検定統計量の分布」，この例題でいうと「逸脱度の差 $\Delta D_{1,2}$ の分布を予測できます。この PB 法を実行するために，Python の自作関数 ~pb()~ を定義してみましょうか。
+
+#+BEGIN_SRC ipython
+  import numpy as np
+  from patsy import dmatrices
+  from statsmodels.genmod.families.family import Poisson
+  from pandas import Series
+
+  def pb(d, n):
+
+      def get_dd():
+          d['y_rnd'] = np.random.poisson(d.y.mean(), len(d.y))
+          fits = []
+          formulas = ['y_rnd ~ 1', 'y_rnd ~ x']
+          for i in range(2):
+              y, X = dmatrices(formulas[i], data=d, return_type='dataframe')
+              fits.append(GLM(y, X, family=Poisson()).fit())
+          return fits[0].deviance - fits[1].deviance
+
+      return Series(get_dd() for i in xrange(n))
+
+#+END_SRC
+
+作成した ~pb()~ 関数を実行してみましょう。
+
+#+BEGIN_SRC ipython
+  dd12 = pb(d, 1000)
+#+END_SRC
+
+
+上のような Python 上での操作によって，逸脱度の差 $\Delta D_{1,2}$ のサンプルが 1000 個つくられて ~dd12~ に格納されました。その概要を ~summary()~ で調べてみましょう。
+
+#+NAME: dd12-describe
+#+BEGIN_SRC ipython
+  dd12.describe()
+#+END_SRC
+
+→
+
+#+CALL: dd12-describe()
+
+#+RESULTS[f2b650eb5296f72a1f7237c2a65b7fb3443acf5f]:
+: count    1000.000000
+: mean        0.928487
+: std         1.366178
+: min         0.000002
+: 25%         0.087602
+: 50%         0.429693
+: 75%         1.225194
+: max        12.958096
+: dtype: float64
+
+これをヒストグラムとして表示してみましょう。
+
+#+BEGIN_SRC ipython :file ./figs/fig_5-4.png :results replace
+  ax = dd12.plot.hist(bins=np.arange(0, 20, 0.2))
+  ax.set_xlabel(r'$\Delta D_{1,2}$', fontsize=14)
+
+#+END_SRC
+
+#+RESULTS[1e5c97c1321eaa361193682eecb4f97c6fd8a8ab]:
+[[file:./figs/fig_5-4.png]]
+
