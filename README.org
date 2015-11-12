@@ -9,6 +9,7 @@
 ** Tumblr
 
 + [[http://tnoda-journal.tumblr.com/post/132976437282/midorihon-in-python-1][緑本 in Python (1): 第2章]]
++ [[http://tnoda-journal.tumblr.com/post/133042971262/midorihon-in-python-2][緑本 in Python (2): 第3章]]
 
 ** 環境
 
