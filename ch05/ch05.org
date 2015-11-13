@@ -148,6 +148,8 @@
 : max        12.958096
 : dtype: float64
 
+*** plot.annotate()
+
 これをヒストグラムとして表示してみましょう。
 
 #+BEGIN_SRC ipython :file ./figs/fig_5-4.png :results replace
@@ -161,4 +163,48 @@
 
 #+RESULTS[f16b7cb6426811259c6a8f8e19ea2a095253e0fe]:
 [[file:./figs/fig_5-4.png]]
+
+
+合計 1000 個ある $\Delta D_{1,2}$ のうちいくつぐらいが，この 4.5 より右にあるのでしょうか？数えてみると，
+
+#+NAME: count-rhs
+#+BEGIN_SRC ipython
+(dd12 >= 4.5).sum()
+#+END_SRC
+
+ということで，1000 個中
+
+#+CALL: count-rhs()
+
+#+RESULTS[f2b650eb5296f72a1f7237c2a65b7fb3443acf5f]:
+: 32
+
+個が 4.5 より大きいことが分かりました。「逸脱度の差が 4.5 より大きくなる確率」は 32/1000 すなわち $P = 0.032$ ということになります。
+
+*** Series.quantile()
+
+ついでに $P=0.05$ となる逸脱度の差 $\Delta D_{1,2}$ を調べてみると，
+
+#+NAME: quantile
+#+BEGIN_SRC ipython
+  dd12.quantile(0.95)
+#+END_SRC
+
+→
+
+#+CALL: quantile()
+
+#+RESULTS[f2b650eb5296f72a1f7237c2a65b7fb3443acf5f]:
+: 3.4095440028780382
+
+
+となり，有意水準 5% の統計学的検定のわくぐみのもとでは， $\Delta D_{1,2] \leq$
+
+#+CALL: quantile()
+
+#+RESULTS[f2b650eb5296f72a1f7237c2a65b7fb3443acf5f]:
+: 3.4095440028780382
+
+
+ぐらいまでは「よくある差」とみなされます。この尤度比検定の結論としては「逸脱度の差 4.5 の P 値は有意水準 0.05 より小さい」ので有意差 (significantly different) があり「帰無仮説 (一定モデル) は棄却され， ~x~ モデルが残るのでこれを採択」と判断します。
 
