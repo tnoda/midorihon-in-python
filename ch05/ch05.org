@@ -151,11 +151,14 @@
 これをヒストグラムとして表示してみましょう。
 
 #+BEGIN_SRC ipython :file ./figs/fig_5-4.png :results replace
-  ax = dd12.plot.hist(bins=np.arange(0, 20, 0.2))
-  ax.set_xlabel(r'$\Delta D_{1,2}$', fontsize=14)
-
+    ax = dd12.plot.hist(bins=np.arange(0, 20, 0.2))
+    ax.set_xlabel(r'$\Delta D_{1,2}$', fontsize=14)
+    ax.plot([4.5, 4.5], [0, 400], 'k--')
+    ax.annotate(r'$\Delta D_{1,2}$ = 4.5', xy=(4.5,300), xytext=(7, 300),
+                arrowprops=dict(facecolor='black', shrink=0.05),
+                fontsize=14)
 #+END_SRC
 
-#+RESULTS[1e5c97c1321eaa361193682eecb4f97c6fd8a8ab]:
+#+RESULTS[f16b7cb6426811259c6a8f8e19ea2a095253e0fe]:
 [[file:./figs/fig_5-4.png]]
 
