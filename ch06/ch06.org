@@ -78,11 +78,21 @@ R の ~glm()~ 系の関数でよく使われる確率分布を Python で整理�
 
 統計モデリングに先だって、データをいろいろな方法で図示する必要があります。ここでは簡単に次のように図示してみます。
 
-#+BEGIN_SRC ipython :file ./figs/fig_6-2.png
+#+BEGIN_SRC ipython :file ./figs/fig_6-2.png :results replace
+  from matplotlib.markers import MarkerStyle
+
   fig, ax = plt.subplots(1, 1)
   labels = ['C', 'T']
   dd = [d[d.f == x] for x in labels]
   colors = ['Red', 'Blue']
   for i in range(2):
-      dd[i].plot.scatter(x='x', y='y', color=colors[i], label=labels[i], ax=ax)
+      dd[i].plot.scatter('x', 'y', s=144, c=colors[i], alpha=0.3,
+                         label=labels[i], ax=ax)
+  ax.legend(loc='lower right')
+  ax.set_xlabel('$x_i$', fontsize=16)
+  ax.set_ylabel('$y_i$', fontsize=16)
 #+END_SRC
+
+#+RESULTS[b6eed99d9312f83302c60c5462ad5802b2aba205]:
+[[file:./figs/fig_6-2.png]]
+
